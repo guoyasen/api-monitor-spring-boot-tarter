@@ -1,0 +1,15 @@
+stages:
+  - deploy
+
+build_image:
+  stage: deploy
+  image: hub.iquantex.com/base/maven:3.6.3-alpine-with-tools
+  script:
+    - mvn clean deploy -Dmaven.test.skip=true
+  only:
+    - master
+    - /(ci\-)+.*$/
+    - develop
+    - tags
+  tags:
+    - sigma-dev

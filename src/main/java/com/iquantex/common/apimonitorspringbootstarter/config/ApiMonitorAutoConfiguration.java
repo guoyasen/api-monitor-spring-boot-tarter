@@ -1,0 +1,53 @@
+package com.iquantex.common.apimonitorspringbootstarter.config;
+
+import com.iquantex.common.apimonitorspringbootstarter.common.Constant;
+import com.iquantex.common.apimonitorspringbootstarter.interceptor.ApiMonitorInterceptor;
+import com.iquantex.common.apimonitorspringbootstarter.service.ApiMonitorService;
+import com.iquantex.common.apimonitorspringbootstarter.service.DbService;
+import com.iquantex.common.apimonitorspringbootstarter.service.impl.ApiMonitorServiceImpl;
+import com.iquantex.common.apimonitorspringbootstarter.service.impl.DbServiceImpl;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+/**
+ * ApiMonitorAutoConfiguration
+ *
+ * @author liko
+ * @date 2022/2/17
+ */
+@Slf4j
+@Configuration
+@EnableConfigurationProperties(DbConfig.class)
+public class ApiMonitorAutoConfiguration {
+
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnProperty(prefix = Constant.API_MONITOR_CONFIG_PREFIX, name = Constant.API_MONITOR_CONFIG_KEY_ENABLED, matchIfMissing = false)
+    public ApiMonitorInterceptor apiMonitorInterceptor() {
+        return new ApiMonitorInterceptor();
+    }
+
+    @Bean
+    @ConditionalOnBean(ApiMonitorInterceptor.class)
+    public DbService apiMonitorDbService() {
+        return new DbServiceImpl();
+    }
+
+    @Bean
+    @ConditionalOnBean(ApiMonitorInterceptor.class)
+    public ApiMonitorService apiMonitorService() {
+        return new ApiMonitorServiceImpl();
+    }
+
+    @Bean
+    @ConditionalOnBean(ApiMonitorInterceptor.class)
+    public WebMvcConfigurer apiMonitorWebMvcConfigurer() {
+        return new WebMvcConfig();
+    }
+}

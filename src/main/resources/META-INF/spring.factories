@@ -1,0 +1,2 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  com.iquantex.common.apimonitorspringbootstarter.config.ApiMonitorAutoConfiguration
