@@ -1,7 +1,7 @@
 stages:
   - deploy
 
-build_image:
+deploy_to_maven_repo:
   stage: deploy
   image: hub.iquantex.com/base/maven:3.6.3-alpine-with-tools
   script:
