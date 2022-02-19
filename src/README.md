@@ -1,6 +1,6 @@
 # api-monitor-spring-boot-starter 接入文档
 
-1、引入Maven依赖
+### 1、引入Maven依赖
 ```
 <dependency>
     <groupId>com.iquantex.common</groupId>
@@ -9,7 +9,7 @@
 </dependency>
 ```
 
-2、添加配置文件
+### 2、添加配置文件
 ```yaml
 api-monitor:
   enabled: true                                       # 是否启用api监控
@@ -19,3 +19,6 @@ api-monitor:
     username: cs                                      # 数据库信息 用户名
     password: cs                                      # 数据库信息 密码
 ```
+
+### 3、在对应数据库中执行V__INIT.SQL
+SQL文件地址: resources/db/V__INIT.SQL
