@@ -12,6 +12,6 @@ import lombok.Data;
 public class Constant {
     public static final String API_MONITOR_CONFIG_PREFIX = "api-monitor";
     public static final String API_MONITOR_DB_CONFIG_PREFIX = "api-monitor.db";
-
+    public static final String API_MONITOR_KAFKA_CONFIG_PREFIX = "api-monitor.kafka";
     public static final String API_MONITOR_CONFIG_KEY_ENABLED = "enabled";
 }

@@ -7,6 +7,7 @@ import com.iquantex.common.apimonitorspringbootstarter.service.DbService;
 import com.iquantex.common.apimonitorspringbootstarter.service.impl.ApiMonitorServiceImpl;
 import com.iquantex.common.apimonitorspringbootstarter.service.impl.DbServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.producer.KafkaProducer;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -14,6 +15,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.Properties;
 
 /**
  * ApiMonitorAutoConfiguration
@@ -23,7 +26,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  */
 @Slf4j
 @Configuration
-@EnableConfigurationProperties(DbConfig.class)
+@EnableConfigurationProperties({DbConfig.class, KafkaConfig.class})
 public class ApiMonitorAutoConfiguration {
 
     @Bean
@@ -35,6 +38,7 @@ public class ApiMonitorAutoConfiguration {
 
     @Bean
     @ConditionalOnBean(ApiMonitorInterceptor.class)
+    @ConditionalOnProperty(prefix = Constant.API_MONITOR_DB_CONFIG_PREFIX, name = Constant.API_MONITOR_CONFIG_KEY_ENABLED, matchIfMissing = false)
     public DbService apiMonitorDbService() {
         return new DbServiceImpl();
     }
@@ -49,5 +53,17 @@ public class ApiMonitorAutoConfiguration {
     @ConditionalOnBean(ApiMonitorInterceptor.class)
     public WebMvcConfigurer apiMonitorWebMvcConfigurer() {
         return new WebMvcConfig();
+    }
+
+    @Bean
+    @ConditionalOnBean(ApiMonitorInterceptor.class)
+    @ConditionalOnProperty(prefix = Constant.API_MONITOR_KAFKA_CONFIG_PREFIX, name = Constant.API_MONITOR_CONFIG_KEY_ENABLED, matchIfMissing = false)
+    public KafkaProducer<String, String> kafkaProducer(KafkaConfig kafkaConfig) {
+        Properties properties = new Properties();
+        properties.put("bootstrap.servers", kafkaConfig.getBootstrapServers());
+        properties.put("key.serializer", kafkaConfig.getKeySerializer());
+        properties.put("value.serializer", kafkaConfig.getValueSerializer());
+
+        return new KafkaProducer<String, String>(properties);
     }
 }

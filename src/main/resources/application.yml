@@ -1,3 +1,15 @@
 api-monitor:
   enabled: false
+  db:
+    enabled: false
+    driver-class-name: oracle.jdbc.OracleDriver       # 数据库信息 DriverClassName
+    url: jdbc:oracle:thin:@10.10.21.170:1521/sigma6   # 数据库信息 URL
+    username: cs                                      # 数据库信息 用户名
+    password: cs
+  kafka:
+    enabled: false
+    bootstrap-servers: 10.10.23.112:9092
+    key-serializer: org.apache.kafka.common.serialization.StringSerializer
+    value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    topic: api-monitor-kafka
 
