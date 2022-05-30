@@ -9,7 +9,6 @@ import java.util.Arrays;
 @SpringBootApplication
 public class ApiMonitorSpringBootStarterApplication {
     public static void main(String[] args) {
-        ConfigurableApplicationContext run = SpringApplication.run(ApiMonitorSpringBootStarterApplication.class, args);
-        Arrays.stream(run.getBeanDefinitionNames()).forEach(System.out::println);
+        SpringApplication.run(ApiMonitorSpringBootStarterApplication.class, args);
     }
 }

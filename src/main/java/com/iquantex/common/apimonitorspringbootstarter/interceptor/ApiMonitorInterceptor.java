@@ -9,6 +9,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.concurrent.RejectedExecutionException;
 
 @Slf4j
 public class ApiMonitorInterceptor implements HandlerInterceptor {
@@ -32,6 +33,8 @@ public class ApiMonitorInterceptor implements HandlerInterceptor {
         try {
             apiMonitorServiceImpl.after(ex);
             ApiMonitorServiceImpl.threadLocal.remove();
+        } catch (RejectedExecutionException e) {
+            log.error("线程池已满, 请检查Kafka和数据库地址是否正确!");
         } catch (Exception e) {
             log.error("后置处理失败!", e);
         }

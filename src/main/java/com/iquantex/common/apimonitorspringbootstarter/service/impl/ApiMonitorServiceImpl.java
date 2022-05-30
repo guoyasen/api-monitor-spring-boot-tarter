@@ -10,10 +10,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.Objects;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class ApiMonitorServiceImpl implements ApiMonitorService {
@@ -28,6 +32,9 @@ public class ApiMonitorServiceImpl implements ApiMonitorService {
 
     @Autowired(required = false)
     public KafkaConfig kafkaConfig;
+
+    public static ThreadPoolExecutor dbExecutor = new ThreadPoolExecutor(5, 20, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(10240), new ThreadPoolExecutor.AbortPolicy());
+    public static ThreadPoolExecutor kafkaExecutor = new ThreadPoolExecutor(5, 20, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<>(10240), new ThreadPoolExecutor.AbortPolicy());
 
     @Override
     public void before(HttpServletRequest request) {
@@ -55,12 +62,28 @@ public class ApiMonitorServiceImpl implements ApiMonitorService {
             apiMonitor.setIsSuccess(0);
         }
         log.debug("[API-MONITOR] -> " + apiMonitor);
+        if (StringUtils.isEmpty(apiMonitor.getOperator())) {
+            log.debug("非用户操作, 仅输出到日志!");
+            return;
+        }
         if (Objects.nonNull(apiMonitorDbService)) {
-            apiMonitorDbService.saveApiMonitor(apiMonitor);
+            dbExecutor.execute(() -> {
+                try {
+                    apiMonitorDbService.saveApiMonitor(apiMonitor);
+                } catch (Exception e) {
+                    log.error("[API-MONITOR] -> 落库失败。", e);
+                }
+            });
         }
         if (Objects.nonNull(kafkaProducer)) {
-            ProducerRecord<String, String> record = new ProducerRecord<>(kafkaConfig.getTopic(), JSON.toJSONString(apiMonitor));
-            kafkaProducer.send(record);
+            kafkaExecutor.execute(() -> {
+                try {
+                    ProducerRecord<String, String> record = new ProducerRecord<>(kafkaConfig.getTopic(), JSON.toJSONString(apiMonitor));
+                    kafkaProducer.send(record);
+                } catch (Exception e) {
+                    log.error("[API-MONITOR] -> 发送Kafka失败。", e);
+                }
+            });
         }
     }
 

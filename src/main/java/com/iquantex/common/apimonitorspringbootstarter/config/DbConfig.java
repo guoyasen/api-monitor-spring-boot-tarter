@@ -17,9 +17,9 @@ public class DbConfig {
     private String password;
     private String url;
     private String driverClassName;
-    private Integer initialPoolSize = 2;
-    private Integer minPoolSize = 2;
-    private Integer maxPoolSize = 10;
-    private Integer maxStatements = 50;
+    private Integer initialPoolSize = 10;
+    private Integer minPoolSize = 10;
+    private Integer maxPoolSize = 30;
+    private Integer maxStatements = 0;
     private Integer maxIdleTime = 60;
 }
